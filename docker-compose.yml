@@ -14,20 +14,20 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  note-api:
-    build: .
-    container_name: note-api
-    restart: always
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USER: nest
-      DB_PASS: nest
-      DB_NAME: notesdb
-    depends_on:
-      - postgres
-    ports:
-      - "3000:3000"
+  # note-api:
+  #   build: .
+  #   container_name: note-api
+  #   restart: always
+  #   environment:
+  #     DB_HOST: postgres
+  #     DB_PORT: 5432
+  #     DB_USER: nest
+  #     DB_PASS: nest
+  #     DB_NAME: notesdb
+  #   depends_on:
+  #     - postgres
+  #   ports:
+  #     - "3000:3000"
 
 volumes:
   pgdata:

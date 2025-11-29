@@ -41,7 +41,7 @@ export class NotesService {
     try {
       const note = this.notesRepository.create(dto);
        await this.notesRepository.save(note);
-       return { messages: 'Tạo ghi chú thành công' };
+       return { message: 'Tạo ghi chú thành công' };
     } catch (error) {
       throw new BadRequestException('Lỗi khi tạo ghi chú.');
     }
@@ -52,7 +52,7 @@ export class NotesService {
       const note = await this.findOne(id);
       Object.assign(note, dto);
       await this.notesRepository.save(note);
-      return { messages: 'Cập nhập ghi chú thành công' };
+      return { message: 'Cập nhật ghi chú thành công' };
 
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
