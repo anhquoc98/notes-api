@@ -8,7 +8,7 @@ import {
   Body,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
-import { CreateNoteDto, UpdateNoteDto } from 'src/dto/note-response.dto';
+import { CreateNoteDto, UpdateNoteDto } from './dto/note-response.dto';
 
 @Controller('notes')
 export class NotesController {

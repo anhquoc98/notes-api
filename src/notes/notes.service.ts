@@ -1,73 +1,54 @@
 import {
   Injectable,
   NotFoundException,
-  BadRequestException,
-  InternalServerErrorException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CreateNoteDto, UpdateNoteDto } from 'src/dto/note-response.dto';
-import { Note } from 'src/entity/note.entity';
-import { Repository } from 'typeorm';
+import { CreateNoteDto, UpdateNoteDto } from './dto/note-response.dto';
+import { Note } from './entities/note.entity';
+import { INotesService } from './interfaces/notes-service.interface';
+import { NotesRepository } from './repositories/notes.repository';
 
 @Injectable()
-export class NotesService {
-  constructor(
-    @InjectRepository(Note)
-    private readonly notesRepository: Repository<Note>,
-  ) {}
+export class NotesService implements INotesService {
+  constructor(private readonly notesRepository: NotesRepository) {}
 
   async findAll(): Promise<Note[]> {
-    try {
-      return await this.notesRepository.find({
-        order: { createdAt: 'DESC' },
-      });
-    } catch (error) {
-      throw new InternalServerErrorException('Lỗi khi lấy danh sách ghi chú.');
+    const notes = await this.notesRepository.findAll();
+    
+    if (notes.length === 0) {
+      throw new NotFoundException('Không tìm thấy ghi chú nào.');
     }
+    
+    return notes;
   }
 
   async findOne(id: string): Promise<Note> {
-    try {
-      const note = await this.notesRepository.findOne({ where: { id } });
-      if (!note) throw new NotFoundException('Không tìm thấy ghi chú.');
-      return note;
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      throw new InternalServerErrorException('Lỗi khi tìm ghi chú.');
+    const note = await this.notesRepository.findOne(id);
+    if (!note) {
+      throw new NotFoundException('Không tìm thấy ghi chú.');
     }
+    return note;
   }
 
-  async create(dto: CreateNoteDto) {
-    try {
-      const note = this.notesRepository.create(dto);
-       await this.notesRepository.save(note);
-       return { message: 'Tạo ghi chú thành công' };
-    } catch (error) {
-      throw new BadRequestException('Lỗi khi tạo ghi chú.');
-    }
+  async create(dto: CreateNoteDto): Promise<{ message: string }> {
+    await this.notesRepository.create(dto);
+    return { message: 'Tạo ghi chú thành công' };
   }
 
-  async update(id: string, dto: UpdateNoteDto) {
-    try {
-      const note = await this.findOne(id);
-      Object.assign(note, dto);
-      await this.notesRepository.save(note);
-      return { message: 'Cập nhật ghi chú thành công' };
-
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      throw new BadRequestException('Lỗi khi cập nhật ghi chú.');
+  async update(id: string, dto: UpdateNoteDto): Promise<{ message: string }> {
+    const note = await this.notesRepository.findOne(id);
+    if (!note) {
+      throw new NotFoundException('Không tìm thấy ghi chú.');
     }
+    await this.notesRepository.update(note, dto);
+    return { message: 'Cập nhật ghi chú thành công' };
   }
 
   async remove(id: string): Promise<{ message: string }> {
-    try {
-      const note = await this.findOne(id);
-      await this.notesRepository.remove(note);
-      return { message: 'Xóa ghi chú thành công.' };
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      throw new BadRequestException('Lỗi khi xóa ghi chú.');
+    const note = await this.notesRepository.findOne(id);
+    if (!note) {
+      throw new NotFoundException('Không tìm thấy ghi chú.');
     }
+    await this.notesRepository.remove(note);
+    return { message: 'Xóa ghi chú thành công.' };
   }
 }

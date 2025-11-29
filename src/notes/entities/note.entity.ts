@@ -23,3 +23,4 @@ export class Note {
   @UpdateDateColumn()
   updatedAt: Date;
 }
+
